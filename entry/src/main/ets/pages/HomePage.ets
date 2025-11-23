@@ -1,6 +1,5 @@
 import { prefSaveToken, prefReadToken, prefRemoveToken, prefAddTokenToHistory } from '../services/prefsService';
 import { TokenCard } from '../components/TokenCard';
-import router from '@ohos.router';
 import type common from '@ohos.app.ability.common';
 import { LiteError } from '../types/LiteError';
 
@@ -17,7 +16,6 @@ export struct HomePage {
     this.status = 'Tap Read to load token';
   }
 
-
   private async onSave(): Promise<void> {
     try {
       const ctx: common.Context = this.getUIContext().getHostContext()!;
@@ -31,7 +29,6 @@ export struct HomePage {
       this.status = 'Save failed' + (msg ? ', message=' + msg : '');
     }
   }
-
 
   private async onRead(): Promise<void> {
     try {
@@ -72,8 +69,6 @@ export struct HomePage {
       this.status = 'Remove failed' + (msg ? ', message=' + msg : '');
     }
   }
-
-
 
   @Builder private XSButton(label: string, onTap: () => void, fullWidth: boolean = false, topMargin: number = 0) {
     Button(label)
@@ -126,7 +121,7 @@ export struct HomePage {
         .margin({ top: 4 })
 
         this.XSButton('Go to Details', () => {
-          router.pushUrl({
+          this.getUIContext().getRouter().pushUrl({
             url: 'pages/DetailsPage',
             params: { token: this.tokenPreview }
           }).catch((e: Error | LiteError) => {
@@ -136,9 +131,8 @@ export struct HomePage {
           });
         }, true, 6)
 
-
         this.XSButton('Saved Tokens', () => {
-          router.pushUrl({ url: 'pages/TokensPage' })
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/TokensPage' })
             .catch((e: Error | LiteError) => {
               const code: string = (e as LiteError)?.code !== undefined ? String((e as LiteError).code) : '';
               const msg: string  = (e as LiteError)?.message ?? (e as Error).message ?? '';

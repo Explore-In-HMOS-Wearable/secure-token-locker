@@ -1,7 +1,7 @@
 import type common from '@ohos.app.ability.common';
-import router from '@ohos.router';
 import { prefReadTokenHistory, prefClearTokenHistory, prefRemoveToken } from '../services/prefsService';
 import type { TokenItem } from '../types/TokenItem';
+
 @Entry
 @Component
 export struct TokensPage {
@@ -83,7 +83,9 @@ export struct TokensPage {
               })();
             }, true)
 
-            this.XSButton('Back', () => { router.back(); }, true, 4)
+            this.XSButton('Back', () => {
+              this.getUIContext().getRouter().back();
+            }, true, 4)
           }
           .width('100%')
           .padding(6)

@@ -26,6 +26,6 @@ export async function initCloud(): Promise<void> {
   } catch (e) {
   const code = (e as LiteError)?.code !== undefined ? String((e as LiteError).code) : '';
   const msg  = (e as LiteError)?.message ?? (e as Error).message ?? '';
-  console.error('[cloudInit] failed' + (code ? ', code=' + code : '') + (msg ? ', message=' + msg : ''));
-}
+    console.error(`[cloudInit] failed${code ? `, code=${code}` : ''}${msg ? `, message=${msg}` : ''}`);
+  }
 }
