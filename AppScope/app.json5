@@ -1,6 +1,6 @@
 {
   "app": {
-    "bundleName": "com.hmosdemos.securetokenlocker",
+    "bundleName": "com.hmosdemos.wearable.secure_token_locker",
     "vendor": "hmosdemos",
     "versionCode": 1000000,
     "versionName": "1.0.0",

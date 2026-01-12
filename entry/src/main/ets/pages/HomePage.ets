@@ -1,7 +1,16 @@
-import { prefSaveToken, prefReadToken, prefRemoveToken, prefAddTokenToHistory } from '../services/prefsService';
+import { prefSaveToken, prefReadToken, prefRemoveToken, prefAddTokenToHistory } from '../services/PrefsService';
 import { TokenCard } from '../components/TokenCard';
 import type common from '@ohos.app.ability.common';
 import { LiteError } from '../types/LiteError';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { logger } from '../util/Logger';
+
+
+@Builder
+export function HomePageBuilder(name: string, param: Object) {
+  HomePage()
+}
+
 
 @Entry
 @Component
@@ -9,6 +18,7 @@ export struct HomePage {
   @State status: string = 'Tap Read to load token';
   @State tokenPreview: string = '';
   @State masked: boolean = true;
+  pageInfos: NavPathStack = new NavPathStack();
 
   aboutToAppear() {
     this.tokenPreview = '';
@@ -26,7 +36,7 @@ export struct HomePage {
       this.status = 'Saved token (prefs)';
     } catch (e) {
       const msg: string = (e as LiteError)?.message ?? (e as Error).message ?? '';
-      this.status = 'Save failed' + (msg ? ', message=' + msg : '');
+      this.status = `Save failed${msg ? `, message=${msg}` : ''}`;
     }
   }
 
@@ -39,7 +49,7 @@ export struct HomePage {
       this.masked = true;
     } catch (e) {
       const msg: string = (e as LiteError)?.message ?? (e as Error).message ?? '';
-      this.status = 'Read failed' + (msg ? ', message=' + msg : '');
+      this.status = `Read failed${msg ? `, message=${msg}` : ''}`;
     }
   }
 
@@ -53,7 +63,7 @@ export struct HomePage {
       this.status = 'Updated token (prefs)';
     } catch (e) {
       const msg: string = (e as LiteError)?.message ?? (e as Error).message ?? '';
-      this.status = 'Update failed' + (msg ? ', message=' + msg : '');
+      this.status = `Update failed${msg ? `, message=${msg}` : ''}`;
     }
   }
 
@@ -66,7 +76,7 @@ export struct HomePage {
       this.masked = true;
     } catch (e) {
       const msg: string = (e as LiteError)?.message ?? (e as Error).message ?? '';
-      this.status = 'Remove failed' + (msg ? ', message=' + msg : '');
+      this.status = `Remove failed${msg ? `, message=${msg}` : ''}`;
     }
   }
 
@@ -83,68 +93,80 @@ export struct HomePage {
   }
 
   build() {
-    Scroll() {
-      Column() {
+    NavDestination() {
+      Scroll() {
         Column() {
-          Text('Secure Token Locker')
-            .fontSize(15)
-            .fontWeight(FontWeight.Bold)
-            .margin({ bottom: 2 })
-          Text('Wearable-friendly demo (Preferences)')
-            .fontSize(8.5)
-            .opacity(0.7)
+          Column() {
+            Text('Secure Token Locker')
+              .fontSize(15)
+              .fontWeight(FontWeight.Bold)
+              .margin({ bottom: 2 })
+            Text('Wearable-friendly demo (Preferences)')
+              .fontSize(8.5)
+              .opacity(0.7)
+          }
+          .width('100%')
+          .padding(6)
+          .backgroundColor('#11161a')
+          .borderRadius(10)
+
+          TokenCard({
+            token: this.tokenPreview,
+            status: this.status,
+            masked: $masked
+          })
+            .margin({ top: 6 })
+
+          Row() {
+            this.XSButton('Save', () => this.onSave())
+            this.XSButton('Read', () => this.onRead())
+          }
+          .justifyContent(FlexAlign.SpaceBetween)
+          .margin({ top: 6 })
+
+          Row() {
+            this.XSButton('Update', () => this.onUpdate())
+            this.XSButton('Remove', () => this.onRemove())
+          }
+          .justifyContent(FlexAlign.SpaceBetween)
+          .margin({ top: 4 })
+
+          this.XSButton('Go to Details', () => {
+
+
+
+            this.pageInfos.pushDestination( {
+              name: 'DetailsPage',
+              param: this.tokenPreview,
+              onPop: (popInfo: PopInfo)=> {
+                logger.info(`[HomaPage][pushDestination] last page is: ${popInfo.info.name}, result: ${JSON.stringify(popInfo.result)}`);
+              }
+            }).catch((error: BusinessError) => {
+              logger.error(`[HomaPage][pushDestination] failed, error code = ${error.code}, error.message = ${error.message}.`)
+            }).then(() => {
+              logger.error('[HomaPage][pushDestination] success.');
+            });
+
+
+          }, true, 6)
+
+          this.XSButton('Saved Tokens', () => {
+
+            this.pageInfos.pushPathByName('TokensPage', null, false);
+
+          }, true, 4)
         }
         .width('100%')
         .padding(6)
-        .backgroundColor('#11161a')
-        .borderRadius(10)
-
-        TokenCard({
-          token: this.tokenPreview,
-          status: this.status,
-          masked: $masked
-        })
-          .margin({ top: 6 })
-
-        Row() {
-          this.XSButton('Save', () => this.onSave())
-          this.XSButton('Read', () => this.onRead())
-        }
-        .justifyContent(FlexAlign.SpaceBetween)
-        .margin({ top: 6 })
-
-        Row() {
-          this.XSButton('Update', () => this.onUpdate())
-          this.XSButton('Remove', () => this.onRemove())
-        }
-        .justifyContent(FlexAlign.SpaceBetween)
-        .margin({ top: 4 })
-
-        this.XSButton('Go to Details', () => {
-          this.getUIContext().getRouter().pushUrl({
-            url: 'pages/DetailsPage',
-            params: { token: this.tokenPreview }
-          }).catch((e: Error | LiteError) => {
-            const code: string = (e as LiteError)?.code !== undefined ? String((e as LiteError).code) : '';
-            const msg: string  = (e as LiteError)?.message ?? (e as Error).message ?? '';
-            this.status = 'pushUrl failed' + (code ? ', code=' + code : '') + (msg ? ', message=' + msg : '');
-          });
-        }, true, 6)
-
-        this.XSButton('Saved Tokens', () => {
-          this.getUIContext().getRouter().pushUrl({ url: 'pages/TokensPage' })
-            .catch((e: Error | LiteError) => {
-              const code: string = (e as LiteError)?.code !== undefined ? String((e as LiteError).code) : '';
-              const msg: string  = (e as LiteError)?.message ?? (e as Error).message ?? '';
-              this.status = 'pushUrl failed' + (code ? ', code=' + code : '') + (msg ? ', message=' + msg : '');
-            });
-        }, true,4)
       }
       .width('100%')
-      .padding(6)
+      .height('100%')
+      .backgroundColor('#0b0f12')
     }
-    .width('100%')
-    .height('100%')
-    .backgroundColor('#0b0f12')
+    .hideTitleBar(true)
+    .onReady((context: NavDestinationContext) => {
+      this.pageInfos = context.pathStack;
+    })
+
   }
 }

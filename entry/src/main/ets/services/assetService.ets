@@ -22,7 +22,9 @@ export async function readSecret(): Promise<string | null> {
   const q: asset.AssetMap = new Map();
   q.set(asset.Tag.ALIAS, bytes(TOKEN_ALIAS));
   const res = await asset.query(q);
-  if (!res.length) return null;
+  if (!res.length) {
+    return null;
+  }
   return str(res[0].get(asset.Tag.SECRET) as Uint8Array | undefined);
 }
 

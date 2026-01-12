@@ -1,13 +1,14 @@
-import { HomePage } from './HomePage';
-
 @Entry
 @Component
 struct Index {
+  pageStack : NavPathStack = new NavPathStack();
+
   build() {
-    Column() {
-      HomePage();
-    }
-    .width('100%')
-    .height('100%')
+    Navigation(this.pageStack) {
+
+    }.onAppear(() => {
+      this.pageStack.pushPathByName('HomePage', null, false);
+    })
+    .hideNavBar(true)
   }
 }

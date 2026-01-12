@@ -1,5 +1,3 @@
-import { Size } from "@ohos/hypium";
-
 @Component
 export struct TokenCard {
   @Prop token: string = '';
@@ -7,8 +5,10 @@ export struct TokenCard {
   @Link masked: boolean;
 
   private maskToken(s: string, masked: boolean): string {
-    if (!s) return '— no token —';
-    if (!masked) return s;
+    if ( !s ) {
+      return '— no token —';
+    }
+    if (!masked) { return s; }
     const keep: number = Math.min(4, s.length);
     return '*'.repeat(Math.max(0, s.length - keep)) + s.slice(-keep);
   }
@@ -34,7 +34,7 @@ export struct TokenCard {
         .margin({ top: 4 })
         .maxLines(1)
 
-      Text('Status: ' + this.status)
+      Text(`Status: ${this.status}`)
         .fontSize(11)
         .opacity(0.75)
         .margin({ top: 6 })

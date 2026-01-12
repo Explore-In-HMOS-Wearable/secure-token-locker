@@ -1,4 +1,3 @@
-// entry/src/main/ets/services/prefsService.ts
 import dataPreferences from '@ohos.data.preferences';
 import type common from '@ohos.app.ability.common';
 import type { TokenItem } from '../types/TokenItem';

@@ -1,12 +1,20 @@
 import type common from '@ohos.app.ability.common';
-import { prefReadTokenHistory, prefClearTokenHistory, prefRemoveToken } from '../services/prefsService';
+import { prefReadTokenHistory, prefClearTokenHistory, prefRemoveToken } from '../services/PrefsService';
 import type { TokenItem } from '../types/TokenItem';
+
+
+@Builder
+export function TokensPageBuilder(name: string, param: Object) {
+  TokensPage()
+}
+
 
 @Entry
 @Component
 export struct TokensPage {
   @State items: TokenItem[] = [];
   @State status: string = 'Loading...';
+  pageInfos: NavPathStack = new NavPathStack();
 
   private fmt(ts: number): string {
     const d: Date = new Date(ts);
@@ -44,57 +52,67 @@ export struct TokensPage {
   }
 
   build() {
-    Column() {
-      Column() {
-        Text('Saved Tokens')
-          .fontSize(15).fontWeight(FontWeight.Bold)
-          .margin({ bottom: 2 })
-        Text(this.status).fontSize(9).opacity(0.7)
-      }
-      .width('100%').padding(6)
-      .backgroundColor('#11161a').borderRadius(10)
 
-      List() {
-        ForEach(this.items, (it: TokenItem, idx: number) => {
+    NavDestination() {
+      Column() {
+        Column() {
+          Text('Saved Tokens')
+            .fontSize(15).fontWeight(FontWeight.Bold)
+            .margin({ bottom: 2 })
+          Text(this.status).fontSize(9).opacity(0.7)
+        }
+        .width('100%').padding(6)
+        .backgroundColor('#11161a').borderRadius(10)
+
+        List() {
+          ForEach(this.items, (it: TokenItem) => {
+            ListItem() {
+              Column() {
+                Text(it.value)
+                  .fontSize(11)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                  .maxLines(1)
+                Text(this.fmt(it.savedAt))
+                  .fontSize(9).opacity(0.7)
+              }
+              .padding(6)
+              .backgroundColor('#0f1418')
+              .borderRadius(8)
+            }
+            .margin({ bottom: 4 })
+          }, (item: TokenItem) => {return `${item.savedAt}_${JSON.stringify(item.value)}` })
+
           ListItem() {
             Column() {
-              Text(it.value)
-                .fontSize(11)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
-                .maxLines(1)
-              Text(this.fmt(it.savedAt))
-                .fontSize(9).opacity(0.7)
+              this.XSButton('Clear All (History + Current)', () => {
+                const ctx: common.Context = this.getUIContext().getHostContext()!;
+                (async () => {
+                  await prefClearTokenHistory(ctx);
+                  await prefRemoveToken(ctx);
+                  await this.reload();
+                })();
+              }, true)
+
+              this.XSButton('Back', () => {
+                this.pageInfos.pop();
+              }, true, 4)
             }
+            .width('100%')
             .padding(6)
-            .backgroundColor('#0f1418')
-            .borderRadius(8)
           }
-          .margin({ bottom: 4 })
-        })
-
-        ListItem() {
-          Column() {
-            this.XSButton('Clear All (History + Current)', () => {
-              const ctx: common.Context = this.getUIContext().getHostContext()!;
-              (async () => {
-                await prefClearTokenHistory(ctx);
-                await prefRemoveToken(ctx);
-                await this.reload();
-              })();
-            }, true)
-
-            this.XSButton('Back', () => {
-              this.getUIContext().getRouter().back();
-            }, true, 4)
-          }
-          .width('100%')
-          .padding(6)
         }
+        .width('100%')
+        .height('100%')
+        .edgeEffect(EdgeEffect.None)
+        .margin({ top: 6 })
       }
-      .edgeEffect(EdgeEffect.None)
-      .margin({ top: 6 })
+      .width('100%').padding(6)
+      .backgroundColor('#0b0f12')
     }
-    .width('100%').padding(6)
-    .backgroundColor('#0b0f12')
+    .hideTitleBar(true)
+    .onReady((context: NavDestinationContext) => {
+      this.pageInfos = context.pathStack;
+    })
+
   }
 }

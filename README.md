@@ -4,6 +4,7 @@
 
 SecureTokenLocker is a wearable sample app that securely **saves, reads, updates, and removes** token values and shows a compact **history list** of all actions for quick auditing on small screens.
 
+# Preview
 
 <div>
   <img src="screenshots/ss1.png" width="24%">
@@ -27,11 +28,6 @@ SecureTokenLocker is a wearable sample app that securely **saves, reads, updates
 - **Frameworks**: HarmonyOS 5.1.0(18)
 - **Tools**: DevEco Studio Vers 5.1.0.828SP1
 - **Libraries**: `@kit.ArkUI` (plus platform Security/Storage APIs)
-
-# Required Permissions
-
-- _No runtime permissions required._
-  > Token operations rely on platform security/storage APIs and do not require location or network permissions.
 
 # Directory Structure
 
@@ -58,25 +54,21 @@ entry/src/main/ets/
 │ ├─ cloudInit.ets
 │ └─ prefsService.ets
 │
+├─ util/
+│ └─ Logger.ets
 ├─ types/
 │ ├─ LiteError.ets
-│ ├─ RouterParams.ets
+│ ├─ NavigationParams.ets
 │ └─ TokenItem.ets
 │
 └─ resources/ # images, strings, layouts, etc.
 ```
-# Constraints and Restrictions
 
+# Constraints and Restrictions
 ## Supported Devices
 
-- Huawei Watch 5 (and HarmonyOS wearable devices with compatible Security/Storage capabilities)
-
-## Limitations
-
-- The app targets **wearable** devices; certain secure storage APIs may not function in previewer/simulators.
-- Ensure the device profile and **SysCap** are correctly configured for wearable targets.
+- Huawei Watch 5
 
 # License
 **SecureTokenLocker** is distributed under the terms of the MIT License.  
 See the [LICENSE](LICENSE) for more information.
-
